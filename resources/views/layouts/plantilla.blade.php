@@ -19,6 +19,5 @@
 
     <!-- script -->
     @livewireScripts
-    <script src="/livewire/livewire.js"></script>
 </body>
 </html>

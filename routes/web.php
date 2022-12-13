@@ -28,6 +28,15 @@ Route::controller(CursoController::class)->group(function(){
     Route::get('cursos/{cursos}/{categoria}', 'showCategory');
 });
 
+Route::get('category', function(){
+    return view('content.category');
+});
+Route::get('assigment', function(){
+    return view('content.assigment');
+});
+Route::get('course', function(){
+    return view('content.course');
+});
 
 Route::get('/', function () {
     return view('welcome');

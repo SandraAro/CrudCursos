@@ -10,12 +10,15 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable=[
-        'category_id',
-        'assigment_id',
         'name',
         'description',
         'image'
     ];
 
     protected $table='courses';
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

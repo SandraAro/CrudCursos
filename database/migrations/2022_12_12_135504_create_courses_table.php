@@ -15,14 +15,10 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('category_id');
-            $table->unsignedBigInteger('assigment_id');
             $table->string('name');
             $table->string('description');
             $table->string('image');
             $table->timestamps();
-            $table->foreign('category_id')->references('id')->on('categories');
-            $table->foreign('assigment_id')->references('id')->on('assigments');
         });
     }
 

@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Assigment extends Model
+class CoursesAssigment extends Model
 {
     use HasFactory;
     public $timestamps = false;
 
     protected $fillable=[
-        'name'
+        'course_id',
+        'assigment_id'
     ];
-
-    protected $table='assigments';
 }

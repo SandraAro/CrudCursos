@@ -1,4 +1,4 @@
-<div>
+<div class="row">
     <label class="text-primary">Seleccione una categoria</label>
 
     {{-- <select name="category" wire:model="course.category_id" placeholder="Categorias">
@@ -38,6 +38,8 @@
         </tbody>
     </table>
 
+
+
     {{-- @dump($assigmentsChecks,$assigmentsSelected) --}}
     {{-- <button wire:click=saveCategory()>Guardar</button> --}}
 {{--
@@ -62,5 +64,33 @@
         @error('course.image')<span class="text-danger">{{ $message }}</span>@enderror
     </div>
 
-    <button wire:click="toCreate()">Crear</button>
+    <button wire:click="toCreate()" class="btn btn-primary">Crear</button>
+
+    <div class="row col-12 mt-2">
+        @foreach ($courses as $course)
+        <div class="col-3">
+            <div class="card" style="width: 18rem;">
+                <img src="{{ $this->getImage($course->image)}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title">{{$course->name}}</h5>
+                  <p class="card-text">{{$course->description}}</p>
+                  @foreach ($course->coursesCategories as $item)
+                      <span class="badge bg-danger">{{ $item->categories->name}}</span>
+                  @endforeach
+
+                  <div class="mt-1">
+                    <ul>
+                        @foreach ($course->coursesAssigments as $courseAssigment)
+                            <li>{{$courseAssigment->assigment->name}}</li>
+                        @endforeach
+                    </ul>
+                  </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+
+        <button wire:click='showCategory()'> Guardar</button>
+    </div>
+
  </div>

@@ -17,8 +17,13 @@ class Course extends Model
 
     protected $table='courses';
 
-    public function category()
+    public function coursesCategories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->hasMany(CoursesCategory::class);
+    }
+
+    public function coursesAssigments()
+    {
+        return $this->hasMany(CoursesAssigment::class);
     }
 }

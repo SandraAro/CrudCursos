@@ -14,4 +14,8 @@ class CoursesAssigment extends Model
         'course_id',
         'assigment_id'
     ];
+
+    public function assigment(){
+        return $this->hasOne(Assigment::class,'id', 'assigment_id');
+    }
 }

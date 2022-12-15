@@ -19,14 +19,14 @@ use App\Http\Controllers\CursoController;
 Route::get('/', [Controller::class, 'index']);
 
 //Rutas con un mismo controlador (Agrupación de rutas)
-Route::controller(CursoController::class)->group(function(){
+/* Route::controller(CursoController::class)->group(function(){
     //la vista es recomendable colocarle el mismo nombre del metodo dentro de una carpeta con el nombre de la ruta(cursos)
     Route::get('cursos', 'index')->name('cursos');
     Route::get('image-upload', 'index')->name('archivos');
     Route::get('cursos/create', 'create');
     Route::get('cursos/{cursos}', 'show');
     Route::get('cursos/{cursos}/{categoria}', 'showCategory');
-});
+}); */
 
 Route::get('category', function(){
     return view('content.category');

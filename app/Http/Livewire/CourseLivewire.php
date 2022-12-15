@@ -9,6 +9,7 @@ use App\Models\CoursesAssigment;
 use App\Models\CoursesCategory;
 use App\Models\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -33,7 +34,9 @@ class CourseLivewire extends Component
     $checks = [],
     $assigments,
     $assigmentsSelected = [],
-    $assigmentsChecks = [];
+    $assigmentsChecks = [],
+    $courses,
+    $categoryCourse;
 
     protected $rules = [
         'course.name' => 'required',
@@ -47,16 +50,31 @@ class CourseLivewire extends Component
         $this->categories = Category::all();
         $this->assigments = Assigment::all();
 
+
+        $this->loadCourses();
+    }
+
+    public function loadCourses(){
         # Cargar cursos
-        $this->courses = Course::get();
+        $this->courses = Course::all();
+        $this->categoryCourse = CoursesCategory::all();
+    }
+
+    public function searchCategory($id)
+    {
+        return Category::where('id', $id)->first()->name;
+    }
+    public function getImage($url)
+    {
+        return Storage::url($url);
     }
 
     public function toCreate()
     {
         #Guarda en la bd cuando termine DB
         DB::beginTransaction();
-        $this->course['image']->storeAs('courses-images', $this->course['image']->getFilename());
-        $this->course['image'] = 'cursos-images/'.$this->course['image']->getFilename();
+        $this->course['image']->storeAs('public', $this->course['image']->getFilename());
+        $this->course['image'] = $this->course['image']->getFilename();
 
         $course = Course::create($this->course);
 
@@ -75,7 +93,7 @@ class CourseLivewire extends Component
         }
 
         DB::commit();
-       dd($this->course);
+        $this->loadCourses();
        //$this->edit($category->id);
     }
 
@@ -95,6 +113,17 @@ class CourseLivewire extends Component
         }else{
             $this->assigmentsSelected[$key] = null;
         }
+    }
+
+    public function showCategory()
+    {
+        /* $data = DB::table('categories')
+        ->join ('courses_categories', 'courses_categories.category_id', '=',  'categories.id')
+        ->select('categories.name as nameCategory')
+        ->get(); */
+        //$data = Category::with('category.name')->get();
+
+        /* dd($data); */
     }
 
     public function render()

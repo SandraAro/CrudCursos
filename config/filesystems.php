@@ -44,9 +44,9 @@ return [
             'throw' => false,
         ],
 
-        'course-images' => [
+        'cursos' => [
             'driver' => 'local',
-            'root' => storage_path('app/courses-image'),
+            'root' => storage_path('app/cursos'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
@@ -79,6 +79,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('cursos') => storage_path('app/cursos'),
     ],
 
 ];

@@ -16,8 +16,8 @@ class Category extends Model
 
     protected $table='categories';
 
-   /*  public function course()
+    /* public function category()
     {
-        return $this->belongsTo(Course::class, 'course_id');
+        return $this->belongsTo(Category::class);
     } */
 }

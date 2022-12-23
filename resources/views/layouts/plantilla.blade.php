@@ -13,6 +13,8 @@
 <body>
     <!-- header -->
     <!-- nav -->
+    <h1 class="fs-1 text">Bienvenidos a mi Mini Market</h1>
+
     @yield('content')
 
     <!-- footer -->

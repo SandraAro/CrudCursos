@@ -29,14 +29,19 @@ class CourseLivewire extends Component
         'assigment_id' => null,
         'course_id'    => null
     ],
+    $courseImage,
     $categories,
+    $image,
     $categoriesSelected = [],
     $checks = [],
     $assigments,
     $assigmentsSelected = [],
     $assigmentsChecks = [],
     $courses,
-    $categoryCourse;
+    $categoryCourse,
+    $course_id = 'create',
+    $showText = false,
+    $action = 'create';
 
     protected $rules = [
         'course.name' => 'required',
@@ -50,6 +55,10 @@ class CourseLivewire extends Component
         $this->categories = Category::all();
         $this->assigments = Assigment::all();
 
+        foreach($this->categories as $key => $category)
+        {
+            $this->checks[$key] = false;
+        }
 
         $this->loadCourses();
     }
@@ -57,13 +66,17 @@ class CourseLivewire extends Component
     public function loadCourses(){
         # Cargar cursos
         $this->courses = Course::all();
-        $this->categoryCourse = CoursesCategory::all();
+    }
+
+    public function showText() {
+        $this->showText = true;
     }
 
     public function searchCategory($id)
     {
         return Category::where('id', $id)->first()->name;
     }
+
     public function getImage($url)
     {
         return Storage::url($url);
@@ -73,33 +86,231 @@ class CourseLivewire extends Component
     {
         #Guarda en la bd cuando termine DB
         DB::beginTransaction();
-        $this->course['image']->storeAs('public', $this->course['image']->getFilename());
-        $this->course['image'] = $this->course['image']->getFilename();
+        $this->courseImage->storeAs('public', $this->courseImage->getFilename());
+        $this->course['image'] = $this->courseImage->getFilename();
 
         $course = Course::create($this->course);
 
         foreach ($this->categoriesSelected as $category) {
+            if(isset($category))
+            {
                 CoursesCategory::create([
                     'course_id' => $course->id,
                     'category_id' => $category,
                 ]);
+            }
         }
 
         foreach ($this->assigmentsSelected as $assigment) {
-            CoursesAssigment::create([
-                'course_id' => $course->id,
-                'assigment_id' => $assigment,
-            ]);
+            if(isset($assigment))
+            {
+                CoursesAssigment::create([
+                    'course_id' => $course->id,
+                    'assigment_id' => $assigment,
+                ]);
+            }
         }
 
         DB::commit();
+        $this->reset(['course','categoriesSelected','assigmentsSelected']);
+        $this->checks = [];
+        $this->assigmentsChecks = [];
         $this->loadCourses();
+        $this->image = !$this->image;
        //$this->edit($category->id);
+    }
+
+    protected function setDependencies($dep, $course)
+    {
+        # Configuramos los datos a manipular
+        $rels = null;
+        $check = [];
+        $selected = [];
+
+        # Condicionamos las dependencias
+        switch ($dep) {
+            case 'category':
+                $dependences = $this->categories;
+                $rels = $course->coursesCategories;
+                break;
+            case 'assigment':
+                $dependences = $this->assigments;
+                $rels = $course->coursesAssigments;
+                break;
+        }
+
+        # Procesamos datos
+        foreach($dependences as $key => $dependence)
+        {
+            foreach($rels as $item)
+            {
+                switch ($dep) {
+                    case 'category':
+                        $rel = $item->category_id;
+                        break;
+                    case 'assigment':
+                        $rel = $item->assigment_id;
+                        break;
+                }
+
+                if ($dependence->id == $rel) {
+                    $check[$key] = true;
+                    $selected[$key] = $rel;
+                }
+            }
+        }
+        # Condiciona antes de guardar datos
+        switch ($dep) {
+            case 'category':
+                $this->checks = $check;
+                $this->categoriesSelected = $selected;
+                break;
+            case 'assigment':
+                $this->assigmentsChecks = $check;
+                $this->assigmentsSelected = $selected;
+                break;
+        }
+    }
+
+    public function editCourse($id)
+    {
+        $this->action = 'update';
+        $courseEdit = Course::find($id);
+        $this->courseEdit = $courseEdit;
+         $this->setDependencies('category', $courseEdit);
+         $this->setDependencies('assigment', $courseEdit);
+
+         $this->course['name'] = $courseEdit->name;
+         $this->course['description'] = $courseEdit->description;
+
+         //valido que name y description esten llenos
+         /* $this->validate(['course.name' => 'required']); */
+            /* dd($this->categoriesSelected); */
+            //busco por id
+
+
+        /*  foreach($this->categories as $key => $category)
+        {
+            //$courseCategory = CoursesCategory::where('category_id', $category->id)->first();
+            $this->checks[$key] = false;
+            $this->categoriesSelected[$key] = null;
+
+            foreach($courseEdit->coursesCategories as $courseCategory)
+            {
+                if ($category->id == $courseCategory->category_id) {
+                        $this->checks[$key] = true;
+                        $this->categoriesSelected[$key] = $courseCategory->category_id;
+                }
+            }
+        }
+
+        foreach($this->assigments as $key => $assigment)
+        {
+            $this->assigmentsChecks[$key] = false;
+            $this->assigmentsSelected[$key] = null;
+
+            foreach($courseEdit->coursesAssigments as $courseAssigment)
+            {
+                if($assigment->id == $courseAssigment->assigment_id){
+                    $this->assigmentsChecks[$key] = true;
+                    $this->assigmentsSelected[$key] = $courseAssigment->assigment_id;
+                }
+            }
+        }
+            dd($this->assigmentsChecks,$this->assigmentsSelected); */
+
+
+         //con el id encontrado actualizo name y description
+         /* $courseEdit->update([
+             'name'         => $this->name,
+             'description'  => $this->description
+         ]); */
+    }
+
+    public function update()
+    {
+        DB::beginTransaction();
+        /* $this->courseImage->storeAs('public', $this->courseImage->getFilename());
+        $this->course['image'] = $this->courseImage->getFilename();
+        $this->courseEdit->update($this->course);
+
+        dd($this->courseEdit->coursesCategories); */
+        $test = [];
+        # Recorro los coursesCategories buscando un curso para editar con su $key
+        foreach ($this->courseEdit->coursesCategories as $key => $coursesCategory) {
+            # Recorro las categories seleccionadas
+            foreach ($this->categoriesSelected as $key2 => $selected) {
+                # Si el id de la categoria es igual al id de la seleccionada
+                if ($coursesCategory->category_id == $selected) {
+                    # Si esta marcada
+                    if ($this->checks[$key2] == true) {
+                        $test[$key2] = 'nada'; # Se queda como está
+
+                    }
+                    else{
+                        $test[$key2] = 'borra'; # Si no esta seleccionada, la borro
+                    }
+                }else{
+                    if ($this->checks[$key2] == true) {
+                        $test[$key2] = 'crea'; # Si no esta seleccionada ni marcada, la creo
+                    }
+                }
+            }
+        }
+        dd($test);
+
+        foreach ($this->categoriesSelected as $category) {
+            if(isset($category))
+            {
+                CoursesCategory::update([
+                    'course_id' => $this->courseEdit->id,
+                    'category_id' => $category,
+                ]);
+            }
+        }
+        foreach ($this->assigmentsSelected as $assigment) {
+            if(isset($assigment))
+            {
+                CoursesAssigment::update([
+                    'course_id' => $this->courseEdit->id,
+                    'assigment_id' => $assigment,
+                ]);
+            }
+        }
+        DB::commit();
+        $this->loadCourses();
+    }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        $assigmentDelete = CoursesAssigment::where('course_id', $id)->get();
+        foreach($assigmentDelete as $assigment)
+        {
+            $assigment->delete();
+        }
+
+        $categoryDelete = CoursesCategory::where('course_id', $id)->get();
+        foreach($categoryDelete as $category)
+        {
+            $category->delete();
+        }
+
+        $courseDelete = Course::find($id);
+        Storage::disk('public')->delete($courseDelete->image);
+        $courseDelete->delete();
+        DB::commit();
+
+        $this->loadCourses();
+    }
+
+    public function resetData(){
+        $this->reset(['course','categoriesSelected','assigmentsSelected']);
     }
 
     public function selectedCategory($key, $id)
     {
-       if ($this->checks[$key] == true) {
+        if ($this->checks[$key] == true) {
         $this->categoriesSelected[$key] = $id;
        }else{
         $this->categoriesSelected[$key] = null;
@@ -113,17 +324,6 @@ class CourseLivewire extends Component
         }else{
             $this->assigmentsSelected[$key] = null;
         }
-    }
-
-    public function showCategory()
-    {
-        /* $data = DB::table('categories')
-        ->join ('courses_categories', 'courses_categories.category_id', '=',  'categories.id')
-        ->select('categories.name as nameCategory')
-        ->get(); */
-        //$data = Category::with('category.name')->get();
-
-        /* dd($data); */
     }
 
     public function render()

@@ -18,30 +18,30 @@ class CourseLivewire extends Component
     use WithFileUploads;
 
     public $selects = [
-        'categories' => null,
-        'assigments' => null,
-    ],$course = [
-        'name' => null,
-        'description' => null,
-        'image' => null,
-    ],$relacion = [
-        'category_id'  => null,
-        'assigment_id' => null,
-        'course_id'    => null
-    ],
-    $courseImage,
-    $categories,
-    $image,
-    $categoriesSelected = [],
-    $checks = [],
-    $assigments,
-    $assigmentsSelected = [],
-    $assigmentsChecks = [],
-    $courses,
-    $categoryCourse,
-    $course_id = 'create',
-    $showText = false,
-    $action = 'create';
+            'categories' => null,
+            'assigments' => null,
+        ], $course = [
+            'name' => null,
+            'description' => null,
+            'image' => null,
+        ], $relacion = [
+            'category_id'  => null,
+            'assigment_id' => null,
+            'course_id'    => null
+        ],
+        $courseImage,
+        $categories,
+        $image,
+        $categoriesSelected = [],
+        $checks = [],
+        $assigments,
+        $assigmentsSelected = [],
+        $assigmentsChecks = [],
+        $courses,
+        $categoryCourse,
+        $course_id = 'create',
+        $showText = false,
+        $action = 'create';
 
     protected $rules = [
         'course.name' => 'required',
@@ -55,20 +55,21 @@ class CourseLivewire extends Component
         $this->categories = Category::all();
         $this->assigments = Assigment::all();
 
-        foreach($this->categories as $key => $category)
-        {
+        foreach ($this->categories as $key => $category) {
             $this->checks[$key] = false;
         }
 
         $this->loadCourses();
     }
 
-    public function loadCourses(){
+    public function loadCourses()
+    {
         # Cargar cursos
         $this->courses = Course::all();
     }
 
-    public function showText() {
+    public function showText()
+    {
         $this->showText = true;
     }
 
@@ -79,21 +80,21 @@ class CourseLivewire extends Component
 
     public function getImage($url)
     {
-        return Storage::url($url);
+
+        return Storage::url('../cursos-images/'.$url);
     }
 
     public function toCreate()
     {
         #Guarda en la bd cuando termine DB
         DB::beginTransaction();
-        $this->courseImage->storeAs('public', $this->courseImage->getFilename());
+        $this->courseImage->storeAs('cursos-images', $this->courseImage->getFilename());
         $this->course['image'] = $this->courseImage->getFilename();
 
         $course = Course::create($this->course);
 
         foreach ($this->categoriesSelected as $category) {
-            if(isset($category))
-            {
+            if (isset($category)) {
                 CoursesCategory::create([
                     'course_id' => $course->id,
                     'category_id' => $category,
@@ -102,8 +103,7 @@ class CourseLivewire extends Component
         }
 
         foreach ($this->assigmentsSelected as $assigment) {
-            if(isset($assigment))
-            {
+            if (isset($assigment)) {
                 CoursesAssigment::create([
                     'course_id' => $course->id,
                     'assigment_id' => $assigment,
@@ -112,12 +112,12 @@ class CourseLivewire extends Component
         }
 
         DB::commit();
-        $this->reset(['course','categoriesSelected','assigmentsSelected']);
+        $this->reset(['course', 'categoriesSelected', 'assigmentsSelected']);
         $this->checks = [];
         $this->assigmentsChecks = [];
         $this->loadCourses();
         $this->image = !$this->image;
-       //$this->edit($category->id);
+        //$this->edit($category->id);
     }
 
     protected function setDependencies($dep, $course)
@@ -140,10 +140,8 @@ class CourseLivewire extends Component
         }
 
         # Procesamos datos
-        foreach($dependences as $key => $dependence)
-        {
-            foreach($rels as $item)
-            {
+        foreach ($dependences as $key => $dependence) {
+            foreach ($rels as $item) {
                 switch ($dep) {
                     case 'category':
                         $rel = $item->category_id;
@@ -177,16 +175,16 @@ class CourseLivewire extends Component
         $this->action = 'update';
         $courseEdit = Course::find($id);
         $this->courseEdit = $courseEdit;
-         $this->setDependencies('category', $courseEdit);
-         $this->setDependencies('assigment', $courseEdit);
+        $this->setDependencies('category', $courseEdit);
+        $this->setDependencies('assigment', $courseEdit);
 
-         $this->course['name'] = $courseEdit->name;
-         $this->course['description'] = $courseEdit->description;
+        $this->course['name'] = $courseEdit->name;
+        $this->course['description'] = $courseEdit->description;
 
-         //valido que name y description esten llenos
-         /* $this->validate(['course.name' => 'required']); */
-            /* dd($this->categoriesSelected); */
-            //busco por id
+        //valido que name y description esten llenos
+        /* $this->validate(['course.name' => 'required']); */
+        /* dd($this->categoriesSelected); */
+        //busco por id
 
 
         /*  foreach($this->categories as $key => $category)
@@ -220,8 +218,8 @@ class CourseLivewire extends Component
             dd($this->assigmentsChecks,$this->assigmentsSelected); */
 
 
-         //con el id encontrado actualizo name y description
-         /* $courseEdit->update([
+        //con el id encontrado actualizo name y description
+        /* $courseEdit->update([
              'name'         => $this->name,
              'description'  => $this->description
          ]); */
@@ -246,11 +244,10 @@ class CourseLivewire extends Component
                     if ($this->checks[$key2] == true) {
                         $test[$key2] = 'nada'; # Se queda como está
 
-                    }
-                    else{
+                    } else {
                         $test[$key2] = 'borra'; # Si no esta seleccionada, la borro
                     }
-                }else{
+                } else {
                     if ($this->checks[$key2] == true) {
                         $test[$key2] = 'crea'; # Si no esta seleccionada ni marcada, la creo
                     }
@@ -260,8 +257,7 @@ class CourseLivewire extends Component
         dd($test);
 
         foreach ($this->categoriesSelected as $category) {
-            if(isset($category))
-            {
+            if (isset($category)) {
                 CoursesCategory::update([
                     'course_id' => $this->courseEdit->id,
                     'category_id' => $category,
@@ -269,8 +265,7 @@ class CourseLivewire extends Component
             }
         }
         foreach ($this->assigmentsSelected as $assigment) {
-            if(isset($assigment))
-            {
+            if (isset($assigment)) {
                 CoursesAssigment::update([
                     'course_id' => $this->courseEdit->id,
                     'assigment_id' => $assigment,
@@ -285,14 +280,12 @@ class CourseLivewire extends Component
     {
         DB::beginTransaction();
         $assigmentDelete = CoursesAssigment::where('course_id', $id)->get();
-        foreach($assigmentDelete as $assigment)
-        {
+        foreach ($assigmentDelete as $assigment) {
             $assigment->delete();
         }
 
         $categoryDelete = CoursesCategory::where('course_id', $id)->get();
-        foreach($categoryDelete as $category)
-        {
+        foreach ($categoryDelete as $category) {
             $category->delete();
         }
 
@@ -304,24 +297,25 @@ class CourseLivewire extends Component
         $this->loadCourses();
     }
 
-    public function resetData(){
-        $this->reset(['course','categoriesSelected','assigmentsSelected']);
+    public function resetData()
+    {
+        $this->reset(['course', 'categoriesSelected', 'assigmentsSelected']);
     }
 
     public function selectedCategory($key, $id)
     {
         if ($this->checks[$key] == true) {
-        $this->categoriesSelected[$key] = $id;
-       }else{
-        $this->categoriesSelected[$key] = null;
-       }
+            $this->categoriesSelected[$key] = $id;
+        } else {
+            $this->categoriesSelected[$key] = null;
+        }
     }
 
     public function selectedAssigment($key, $id)
     {
-        if($this->assigmentsChecks[$key] == true){
+        if ($this->assigmentsChecks[$key] == true) {
             $this->assigmentsSelected[$key] = $id;
-        }else{
+        } else {
             $this->assigmentsSelected[$key] = null;
         }
     }

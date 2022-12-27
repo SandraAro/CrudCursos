@@ -1,5 +1,6 @@
 <div class="row">
-    @dump($this->checks)
+    {{-- <img src="{{ url('cursos-images/'.'image.jpg')}}" alt="" style="height: 300px;">
+    <img src="{{ $this->getImage('image.jpg')}}" alt="" style="height: 300px;" id="dffd"> --}}
     <div class="col-4">
         <div class="card">
             <div class="card-body">
@@ -72,6 +73,7 @@
         @foreach ($courses as $course)
             <div class="col-4">
                 <div class="card" style="width: 18rem;">
+                    @dump($this->getImage($course->image))
                     <img src="{{ $this->getImage($course->image)}}" class="card-img-top" alt="..." style="height: 300px; object-fit: cover;">
                     <div class="card-body">
                         <h5 class="card-title">{{$course->name}}</h5>
@@ -99,7 +101,8 @@
             </div>
         @endforeach
         </div>
-</div>
+    </div>
+
 
     {{-- <select name="category" wire:model="course.category_id" placeholder="Categorias">
         <option value=" ">Categorias</option>
@@ -120,3 +123,4 @@
             <option value="{{$key}}"> {{$assigment}}</option>
         @endforeach
     </select><br><br> --}}
+</div>

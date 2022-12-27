@@ -262,7 +262,7 @@ class CourseLivewire extends Component
         foreach ($this->categoriesSelected as $category) {
             if(isset($category))
             {
-                CoursesCategory::update([
+                CoursesCategory::updated([
                     'course_id' => $this->courseEdit->id,
                     'category_id' => $category,
                 ]);
@@ -271,7 +271,7 @@ class CourseLivewire extends Component
         foreach ($this->assigmentsSelected as $assigment) {
             if(isset($assigment))
             {
-                CoursesAssigment::update([
+                CoursesAssigment::updated([
                     'course_id' => $this->courseEdit->id,
                     'assigment_id' => $assigment,
                 ]);

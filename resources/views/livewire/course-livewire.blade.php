@@ -1,5 +1,4 @@
 <div class="row">
-    @dump($this->checks)
     <div class="col-4">
         <div class="card">
             <div class="card-body">

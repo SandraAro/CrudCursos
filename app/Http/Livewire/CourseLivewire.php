@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\CoursesAssigment;
 use App\Models\CoursesCategory;
-use App\Models\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -54,10 +53,6 @@ class CourseLivewire extends Component
         # Selects
         $this->categories = Category::all();
         $this->assigments = Assigment::all();
-
-        foreach ($this->categories as $key => $category) {
-            $this->checks[$key] = false;
-        }
 
         $this->loadCourses();
     }

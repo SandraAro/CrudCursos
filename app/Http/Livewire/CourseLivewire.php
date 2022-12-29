@@ -231,7 +231,7 @@ class CourseLivewire extends Component
         /* $this->courseImage->storeAs('public', $this->courseImage->getFilename());
         $this->course['image'] = $this->courseImage->getFilename();
         $this->courseEdit->update($this->course);
-
+/*
         dd($this->courseEdit->coursesCategories); */
         $test = [];
         # Recorro los coursesCategories buscando un curso para editar con su $key
@@ -309,7 +309,9 @@ class CourseLivewire extends Component
         if ($this->checks[$key] == true) {
             $this->categoriesSelected[$key] = $id;
         } else {
-            $this->categoriesSelected[$key] = null;
+            if ($this->action == 'create') {
+                $this->categoriesSelected[$key] = null;
+            }
         }
     }
 

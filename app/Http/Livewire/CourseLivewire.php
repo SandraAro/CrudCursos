@@ -230,76 +230,59 @@ class CourseLivewire extends Component
     public function update()
     {
         $this->validate();
-        //DB::beginTransaction();
+        DB::beginTransaction();
         ## Actualiza el curso
         # Guarda la imagen en la local y le asigna el nombre
-        $this->courseImage->storeAs('public', $this->courseImage->getFilename());
+        $this->courseImage->storeAs('cursos-images', $this->courseImage->getFilename());
         # Guarda el nombre de la imagen en el contenedor de curso
         $this->course['image'] = $this->courseImage->getFilename();
         # Actualiza el curso con el contenedor
-       // $this->courseEdit->update($this->course);
+        $this->courseEdit->update($this->course);
 
-        ## Prepara los selects de las categorías
-        $test = [];
-        # Recorro los coursesCategories buscando un curso para editar con su $key
-        foreach ($this->courseEdit->coursesCategories as $coursesCategory) {
-            # Recorro las categories seleccionadas
-            foreach ($this->categoriesSelected as $key2 => $selected) {
-                # Si el id de la categoría es igual al id de la seleccionada
-                if ($coursesCategory->category_id == $selected) {
-                    # Si esta marcada
-                    if ($this->checks[$key2] == true) {
-                        $test[$key2] = 'nada'; # Se queda como está
-
-                    } else {
-                        $test[$key2] = 'borra'; # Si no esta seleccionada, la borro
-                        $coursesCategory->delete();
-                    }
-                } else {
-                    if ($this->checks[$key2] == true) {
-                        $test[$key2] = 'crea'; # Si no esta seleccionada ni marcado, la creo
-                    }
+       $test = [];
+       #Preparar los selects de las categorias
+        foreach($this->categoriesSelected as $key => $category){
+            $found = $this->courseEdit->coursesCategories->where('category_id', $category)->first();
+            if ($found) {
+                if($this->checks[$key] == true){
+                    $test[$key] = 'nada';
+                } else{
+                    $found->delete();
+                }
+            }else{
+                if($this->checks[$key]){
+                    CoursesCategory::create([
+                        'course_id' => $this->courseEdit->id,
+                        'category_id' => $category,
+                    ]);
+                        # Si no esta seleccionada ni marcado, la creo
                 }
             }
         }
 
-        $test2 = [];
+        $test3 = [];
         ## Prepara los selects de las asignaciones
-        foreach ($this->courseEdit->coursesAssigments as $courseAssigment){
-            foreach($this->assigmentsSelected as $key => $selected){
-                if($courseAssigment->assigment_id == $selected){
-                    if ($this->assigmentsChecks[$key] == true) {
-                        $test2[$key] = 'nada'; # Se queda como está
+        foreach ($this->assigmentsSelected as $key => $assigment) {
+            $found = $this->courseEdit->coursesAssigments->where('assigment_id', $assigment)->first();
+            if ($found) {
+                if ($this->assigmentsChecks[$key] == true) {
+                    $test3[$key] = 'nada'.$found; # Se queda como está
 
-                    } else {
-                        $test2[$key] = 'borra'; # Si no esta seleccionada, la borro
-                    }
                 } else {
-                    if ($this->assigmentsChecks[$key] == true) {
-                        $test2[$key] = 'crea'; # Si no esta seleccionada ni marcado, la creo
-                    }
+                    $found->delete(); # Si no esta seleccionada, la borro
+                }
+            }else{
+                if ($this->assigmentsChecks[$key] == true) {
+                    CoursesAssigment::create([
+                        'course_id' => $this->courseEdit->id,
+                        'assigment_id' => $assigment,
+                    ]);
+                     # Si no esta seleccionada ni marcado, la creo
                 }
             }
         }
-        dd($test, $test2);
-        foreach ($this->categoriesSelected as $category) {
-            if(isset($category))
-            {
-                CoursesCategory::updated([
-                    'course_id' => $this->courseEdit->id,
-                    'category_id' => $category,
-                ]);
-            }
-        }
-        foreach ($this->assigmentsSelected as $assigment) {
-            if(isset($assigment))
-            {
-                CoursesAssigment::updated([
-                    'course_id' => $this->courseEdit->id,
-                    'assigment_id' => $assigment,
-                ]);
-            }
-        }
+        $found = null;
+
         DB::commit();
         $this->loadCourses();
     }

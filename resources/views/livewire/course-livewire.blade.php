@@ -39,24 +39,22 @@
                 <hr>
                 <div>
                     <label class="text-primary">Nombre del curso</label>
-                    <input type="text" class="border border-2 form-control" wire:model="course.name"> <br>
+                    <input type="text" class="border border-2 form-control @error('course.name') is-invalid @enderror" wire:model="course.name"> <br>
+                    @error('course.name')
+                        <span class="invalid-feedback" role="alert"><strong>{{$message}}</strong></span>
+                    @enderror
 
                     <label class="text-primary">Descripción del curso</label>
-                    <input type="text" class="border border-2 form-control" wire:model="course.description"> <br>
+                    <input type="text" class="border border-2 form-control @error('course.description') is-invalid @enderror" wire:model="course.description"> <br>
+                    @error('course.name')
+                        <span class="invalid-feedback" role="alert"><strong>{{$message}}</strong></span>
+                    @enderror
 
                     <div class="form-group">
                         <label class="text-primary">Imagen:</label>
-                        <input type="file" class="form-control @error('course.image') is-invalid @enderror" wire:model="courseImage" id="{{ $image ? 'image1' : 'image2'}}">
-                        @error('course.image')<span class="text-danger">{{ $message }}</span>@enderror
-                        <div wire:loading wire:target="course.image">Uploading...</div>
-
-                        <!-- Progress Bar -->
-                        {{-- <div x-show="isUploading">
-                            <progress max="100" x-bind:value="progress" wire:target="course.image"></progress>
-                        </div> --}}
-                        {{-- <div wire:loading>
-                            Procesando...
-                        </div> --}}
+                        <input type="file" class="form-control @error('courseImage') is-invalid @enderror" wire:model="courseImage" id="{{ $image ? 'image1' : 'image2'}}">
+                        @error('courseImage')<span class="text-danger">{{ $message }}</span>@enderror
+                        <div wire:loading wire:target="courseImage">Uploading...</div>
                     </div>
                     @if ($action == 'create')
                     <button wire:click="toCreate()" class="btn btn-primary mt-2">Crear</button>

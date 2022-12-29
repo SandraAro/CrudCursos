@@ -46,7 +46,7 @@ class CourseLivewire extends Component
     protected $rules = [
         'course.name' => 'required',
         'course.description' => 'required',
-        'course.image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        'courseImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
     ];
 
     public function mount()
@@ -86,6 +86,8 @@ class CourseLivewire extends Component
 
     public function toCreate()
     {
+        $this->validate();
+
         #Guarda en la bd cuando termine DB
         DB::beginTransaction();
         $this->courseImage->storeAs('cursos-images', $this->courseImage->getFilename());
@@ -227,18 +229,23 @@ class CourseLivewire extends Component
 
     public function update()
     {
-        DB::beginTransaction();
-        /* $this->courseImage->storeAs('public', $this->courseImage->getFilename());
+        $this->validate();
+        //DB::beginTransaction();
+        ## Actualiza el curso
+        # Guarda la imagen en la local y le asigna el nombre
+        $this->courseImage->storeAs('public', $this->courseImage->getFilename());
+        # Guarda el nombre de la imagen en el contenedor de curso
         $this->course['image'] = $this->courseImage->getFilename();
-        $this->courseEdit->update($this->course);
-/*
-        dd($this->courseEdit->coursesCategories); */
+        # Actualiza el curso con el contenedor
+       // $this->courseEdit->update($this->course);
+
+        ## Prepara los selects de las categorías
         $test = [];
         # Recorro los coursesCategories buscando un curso para editar con su $key
-        foreach ($this->courseEdit->coursesCategories as $key => $coursesCategory) {
+        foreach ($this->courseEdit->coursesCategories as $coursesCategory) {
             # Recorro las categories seleccionadas
             foreach ($this->categoriesSelected as $key2 => $selected) {
-                # Si el id de la categoria es igual al id de la seleccionada
+                # Si el id de la categoría es igual al id de la seleccionada
                 if ($coursesCategory->category_id == $selected) {
                     # Si esta marcada
                     if ($this->checks[$key2] == true) {
@@ -246,16 +253,35 @@ class CourseLivewire extends Component
 
                     } else {
                         $test[$key2] = 'borra'; # Si no esta seleccionada, la borro
+                        $coursesCategory->delete();
                     }
                 } else {
                     if ($this->checks[$key2] == true) {
-                        $test[$key2] = 'crea'; # Si no esta seleccionada ni marcada, la creo
+                        $test[$key2] = 'crea'; # Si no esta seleccionada ni marcado, la creo
                     }
                 }
             }
         }
-        dd($test);
 
+        $test2 = [];
+        ## Prepara los selects de las asignaciones
+        foreach ($this->courseEdit->coursesAssigments as $courseAssigment){
+            foreach($this->assigmentsSelected as $key => $selected){
+                if($courseAssigment->assigment_id == $selected){
+                    if ($this->assigmentsChecks[$key] == true) {
+                        $test2[$key] = 'nada'; # Se queda como está
+
+                    } else {
+                        $test2[$key] = 'borra'; # Si no esta seleccionada, la borro
+                    }
+                } else {
+                    if ($this->assigmentsChecks[$key] == true) {
+                        $test2[$key] = 'crea'; # Si no esta seleccionada ni marcado, la creo
+                    }
+                }
+            }
+        }
+        dd($test, $test2);
         foreach ($this->categoriesSelected as $category) {
             if(isset($category))
             {
@@ -320,7 +346,9 @@ class CourseLivewire extends Component
         if ($this->assigmentsChecks[$key] == true) {
             $this->assigmentsSelected[$key] = $id;
         } else {
-            $this->assigmentsSelected[$key] = null;
+            if($this->action == 'create'){
+                $this->assigmentsSelected[$key] = null;
+            }
         }
     }
 

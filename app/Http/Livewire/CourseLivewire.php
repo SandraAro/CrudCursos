@@ -182,49 +182,45 @@ class CourseLivewire extends Component
 
         $this->course['name'] = $courseEdit->name;
         $this->course['description'] = $courseEdit->description;
+    }
 
-        //valido que name y description esten llenos
-        /* $this->validate(['course.name' => 'required']); */
-        /* dd($this->categoriesSelected); */
-        //busco por id
-
-
-        /*  foreach($this->categories as $key => $category)
-        {
-            //$courseCategory = CoursesCategory::where('category_id', $category->id)->first();
-            $this->checks[$key] = false;
-            $this->categoriesSelected[$key] = null;
-
-            foreach($courseEdit->coursesCategories as $courseCategory)
-            {
-                if ($category->id == $courseCategory->category_id) {
-                        $this->checks[$key] = true;
-                        $this->categoriesSelected[$key] = $courseCategory->category_id;
+    protected function updateDependence($types){
+        foreach($types as $type){
+            switch ($type) {
+                case 'category':
+                    $dependences = $this->categoriesSelected;
+                    $rels = $this->courseEdit->coursesCategories;
+                    $id = 'category_id';
+                    $checks = $this->checks;
+                    break;
+                case 'assigment':
+                    $dependences = $this->assigmentsSelected;
+                    $rels = $this->courseEdit->coursesAssigments;
+                    $id = 'assigment_id';
+                    $checks = $this->assigmentsChecks;
+                    break;
+            }
+            foreach($dependences as $key => $dependence){
+                $found = $rels->where($id, $dependence)->first();
+                if ($found) {
+                    if(!$checks[$key]){
+                        $found->delete();
+                    }
+                }else{
+                    if($checks[$key]){
+                        $data = ['course_id' => $this->courseEdit->id, $id => $dependence];
+                        switch ($type) {
+                            case 'category':
+                                CoursesCategory::create($data);
+                            break;
+                            case 'assigment':
+                                CoursesAssigment::create($data);
+                            break;
+                        }
+                    }
                 }
             }
         }
-
-        foreach($this->assigments as $key => $assigment)
-        {
-            $this->assigmentsChecks[$key] = false;
-            $this->assigmentsSelected[$key] = null;
-
-            foreach($courseEdit->coursesAssigments as $courseAssigment)
-            {
-                if($assigment->id == $courseAssigment->assigment_id){
-                    $this->assigmentsChecks[$key] = true;
-                    $this->assigmentsSelected[$key] = $courseAssigment->assigment_id;
-                }
-            }
-        }
-            dd($this->assigmentsChecks,$this->assigmentsSelected); */
-
-
-        //con el id encontrado actualizo name y description
-        /* $courseEdit->update([
-             'name'         => $this->name,
-             'description'  => $this->description
-         ]); */
     }
 
     public function update()
@@ -238,50 +234,7 @@ class CourseLivewire extends Component
         $this->course['image'] = $this->courseImage->getFilename();
         # Actualiza el curso con el contenedor
         $this->courseEdit->update($this->course);
-
-       $test = [];
-       #Preparar los selects de las categorias
-        foreach($this->categoriesSelected as $key => $category){
-            $found = $this->courseEdit->coursesCategories->where('category_id', $category)->first();
-            if ($found) {
-                if($this->checks[$key] == true){
-                    $test[$key] = 'nada';
-                } else{
-                    $found->delete();
-                }
-            }else{
-                if($this->checks[$key]){
-                    CoursesCategory::create([
-                        'course_id' => $this->courseEdit->id,
-                        'category_id' => $category,
-                    ]);
-                        # Si no esta seleccionada ni marcado, la creo
-                }
-            }
-        }
-
-        $test3 = [];
-        ## Prepara los selects de las asignaciones
-        foreach ($this->assigmentsSelected as $key => $assigment) {
-            $found = $this->courseEdit->coursesAssigments->where('assigment_id', $assigment)->first();
-            if ($found) {
-                if ($this->assigmentsChecks[$key] == true) {
-                    $test3[$key] = 'nada'.$found; # Se queda como está
-
-                } else {
-                    $found->delete(); # Si no esta seleccionada, la borro
-                }
-            }else{
-                if ($this->assigmentsChecks[$key] == true) {
-                    CoursesAssigment::create([
-                        'course_id' => $this->courseEdit->id,
-                        'assigment_id' => $assigment,
-                    ]);
-                     # Si no esta seleccionada ni marcado, la creo
-                }
-            }
-        }
-        $found = null;
+        $this->updateDependence(['category','assigment']);
 
         DB::commit();
         $this->loadCourses();

@@ -63,16 +63,6 @@ class CourseLivewire extends Component
         $this->courses = Course::all();
     }
 
-    public function showText()
-    {
-        $this->showText = true;
-    }
-
-    public function searchCategory($id)
-    {
-        return Category::where('id', $id)->first()->name;
-    }
-
     public function getImage($url)
     {
 
@@ -109,11 +99,8 @@ class CourseLivewire extends Component
         }
 
         DB::commit();
-        $this->reset(['course', 'categoriesSelected', 'assigmentsSelected']);
-        $this->checks = [];
-        $this->assigmentsChecks = [];
+        $this->resetData();
         $this->loadCourses();
-        $this->image = !$this->image;
         //$this->edit($category->id);
     }
 
@@ -233,6 +220,7 @@ class CourseLivewire extends Component
 
         DB::commit();
         $this->loadCourses();
+        $this->resetData();
     }
 
     public function destroy($id)
@@ -258,7 +246,8 @@ class CourseLivewire extends Component
 
     public function resetData()
     {
-        $this->reset(['course', 'categoriesSelected', 'assigmentsSelected']);
+        $this->reset(['course', 'categoriesSelected', 'assigmentsSelected', 'checks', 'assigmentsChecks', 'action']);
+        $this->image = !$this->image;
     }
 
     public function selectedCategory($key, $id)

@@ -211,6 +211,7 @@ class CourseLivewire extends Component
         DB::beginTransaction();
         ## Actualiza el curso
         # Guarda la imagen en la local y le asigna el nombre
+        Storage::disk('cursos-images')->delete($this->courseEdit->image);
         $this->courseImage->storeAs('cursos-images', $this->courseImage->getFilename());
         # Guarda el nombre de la imagen en el contenedor de curso
         $this->course['image'] = $this->courseImage->getFilename();

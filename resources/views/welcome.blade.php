@@ -28,9 +28,9 @@
                     <div class="">
                         @auth
                             <a href="{{ url('/dashboard') }}" class="text-muted">Dashboard</a>
-                            <a href="{{ url('cursos') }}" class="text-muted">
+                            {{-- <a href="{{ url('cursos') }}" class="text-muted">
                                 {{ __('Cursos') }}
-                            </a>
+                            </a> --}}
                         @else
                             <a href="{{ route('login') }}" class="text-muted">Log in</a>
 

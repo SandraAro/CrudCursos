@@ -47,6 +47,9 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
+    Route::get('/course', function () {
+        return view('content.course');
+    })->name('course');
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
